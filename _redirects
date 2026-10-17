@@ -1,4 +1,10 @@
-# Domínios do Events Scanner (adicionados como aliases do site no Netlify)
+# Links curtos de campanha: ?c=<area>-<email> vira UTM completa (deve vir antes das regras gerais do domínio)
+https://scannerdeeventos.com.br/*      c=:c  https://deltaomni.com/br/scanner-de-eventos.html?utm_source=crm&utm_medium=email&utm_campaign=es-lancamento&utm_content=:c  301!
+https://www.scannerdeeventos.com.br/*  c=:c  https://deltaomni.com/br/scanner-de-eventos.html?utm_source=crm&utm_medium=email&utm_campaign=es-lancamento&utm_content=:c  301!
+https://eventsscanner.com/*            c=:c  https://deltaomni.com/eventsscanner.html?utm_source=crm&utm_medium=email&utm_campaign=es-launch&utm_content=:c  301!
+https://www.eventsscanner.com/*        c=:c  https://deltaomni.com/eventsscanner.html?utm_source=crm&utm_medium=email&utm_campaign=es-launch&utm_content=:c  301!
+
+# Domínios do Events Scanner (aliases do site no Netlify)
 https://eventsscanner.com/*            https://deltaomni.com/eventsscanner.html?utm_source=eventsscanner.com             301!
 https://www.eventsscanner.com/*        https://deltaomni.com/eventsscanner.html?utm_source=eventsscanner.com             301!
 https://scannerdeeventos.com.br/*      https://deltaomni.com/br/scanner-de-eventos.html?utm_source=scannerdeeventos.com.br  301!
