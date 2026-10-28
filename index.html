@@ -1,19 +1,462 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9XJZJKNSP6"></script>
+<script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date());gtag('config','G-9XJZJKNSP6');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Events Scanner | MapOmega</title>
-<link rel="alternate" hreflang="pt-BR" href="https://deltaomni.com/br/scanner-de-eventos.html">
-<link rel="alternate" hreflang="en" href="https://deltaomni.com/eventsscanner.html">
-<script>
-  // Reserva caso o redirecionamento do Netlify não atue
-  var pt = (navigator.languages || [navigator.language || '']).some(function(l){ return /^pt/i.test(l); });
-  location.replace(pt ? '/br/' : '/eventsscanner.html');
-</script>
-<style>body{font-family:system-ui,sans-serif;margin:48px 24px;color:#1B2230}a{color:#002868}</style>
+<meta name="description" content="See where risk is building up across your site — before the storm breaks. DeltaOmni reads every report, sensor and system on a 3D map of your site.">
+<meta property="og:title" content="DeltaOmni — The Risk Nowcasting platform">
+<meta property="og:description" content="See where risk is building up across your site — before the storm breaks. DeltaOmni reads every report, sensor and system on a 3D map of your site.">
+
+<meta property="og:url" content="https://deltaomni.com/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DeltaOmni — The Risk Nowcasting platform">
+<meta name="twitter:description" content="See where risk is building up across your site — before the storm breaks. DeltaOmni reads every report, sensor and system on a 3D map of your site.">
+<link rel="alternate" hreflang="en" href="https://deltaomni.com/">
+<link rel="alternate" hreflang="pt-BR" href="https://deltaomni.com/br/">
+<title>DeltaOmni — The Risk Nowcasting platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --sky:#38BDF8;--slate:#0F172A;--surface:#1E293B;--panel:#162032;--muted:#94A3B8;--white:#EFF6FF;
+  --border:rgba(255,255,255,.07);
+  --ok:#10B981;--warn:#F59E0B;--crit:#EF4444;
+  --omni:#2563EB;--delta:#06B6D4;--safety:#10B981;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{background:var(--slate);color:var(--white);font-family:'Inter',sans-serif;overflow-x:hidden}
+.inner{max-width:1080px;margin:0 auto;padding:0 40px}
+.inner-nar{max-width:760px;margin:0 auto;padding:0 40px}
+@media(max-width:600px){.inner,.inner-nar{padding:0 20px}}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--sky);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:'';width:20px;height:1px;background:var(--sky)}
+.section-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3.6vw,38px);font-weight:700;letter-spacing:-.02em;margin-bottom:16px;line-height:1.2}
+.section-title em{font-style:normal;color:var(--sky)}
+.section-sub{font-size:15px;font-weight:300;color:var(--muted);line-height:1.7;max-width:620px;margin-bottom:44px}
+section{padding:96px 0}
+@media(max-width:768px){section{padding:64px 0}}
+.alt{background:var(--panel)}
+.btn-primary{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--slate);background:var(--sky);border:none;padding:14px 26px;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s}
+.btn-primary:hover{background:#7DD3FC;box-shadow:0 0 24px rgba(56,189,248,.3)}
+.btn-secondary{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);background:transparent;border:1px solid rgba(56,189,248,.3);padding:13px 20px;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--sky);background:rgba(56,189,248,.06)}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* EVENTS SCANNER BAND */
+.es-band{position:fixed;top:0;left:0;right:0;z-index:210;height:44px;display:flex;align-items:center;justify-content:center;gap:14px;padding:0 20px;background:var(--delta);color:var(--slate);font-size:13.5px;line-height:1.2}
+.es-band .es-new{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.14em;border:1px solid rgba(15,23,42,.45);padding:3px 7px;border-radius:2px;white-space:nowrap}
+.es-band .es-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.es-band .es-short{display:none;white-space:nowrap}
+.es-band a{color:var(--slate);font-weight:700;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+@media(max-width:760px){.es-band .es-text{display:none}.es-band .es-short{display:inline}}
+@media(max-width:480px){.es-band{font-size:13px;gap:10px}.es-band .es-new{display:none}}
+
+/* NAV */
+nav{position:fixed;top:44px;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:16px 48px;transition:background .3s}
+nav.scrolled{background:rgba(15,23,42,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:9px}
+.nav-logo-dot{width:7px;height:7px;border-radius:50%;background:var(--sky);box-shadow:0 0 10px var(--sky)}
+.nav-links{display:flex;gap:22px;list-style:none;align-items:center}
+.nav-links a{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;white-space:nowrap}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{color:var(--sky)!important;border:1px solid rgba(56,189,248,.3);padding:7px 13px!important;border-radius:2px}
+.nav-lang{border-left:1px solid var(--border);padding-left:16px}
+.nav-ham{display:none;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer}
+.nav-mob{display:none;position:fixed;top:104px;left:0;right:0;z-index:199;background:rgba(15,23,42,.98);flex-direction:column;padding:14px 22px;border-bottom:1px solid var(--border)}
+.nav-mob a{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:12px 0;border-bottom:1px solid var(--border)}
+.nav-mob a:last-child{border-bottom:none}
+.nav-mob.open{display:flex}
+@media(max-width:880px){.nav-links{display:none}.nav-ham{display:block}}
+@media(max-width:600px){nav{padding:14px 20px}}
+
+/* HERO */
+#hero{min-height:92vh;display:flex;align-items:center;padding:164px 0 60px;position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 60% 40%,rgba(56,189,248,.06) 0%,transparent 65%),var(--slate)}
+#hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(56,189,248,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.03) 1px,transparent 1px);background-size:56px 56px}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}}
+.hero-badge{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.3em;color:var(--sky);border:1px solid rgba(56,189,248,.35);padding:6px 14px;border-radius:20px;display:inline-block;margin-bottom:22px;text-transform:uppercase}
+.hero-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4.6vw,50px);font-weight:700;line-height:1.12;letter-spacing:-.02em;margin-bottom:20px}
+.hero-title em{font-style:normal;color:var(--sky)}
+.hero-sub{font-size:16.5px;color:var(--white);line-height:1.6;max-width:500px;margin-bottom:32px;font-weight:300}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
+.hero-visual{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:18px}
+.hero-visual svg{width:100%;height:auto;display:block}
+.hv-caption{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--muted);margin-top:12px;text-align:center}
+
+/* CARDS */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:820px){.grid3,.grid2{grid-template-columns:1fr}}
+@media(max-width:520px){.grid4{grid-template-columns:1fr}}
+.card{border:1px solid var(--border);border-radius:10px;padding:28px 24px;background:var(--panel)}
+.alt .card{background:var(--slate)}
+.card h3{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;line-height:1.3}
+.card p{font-size:13.5px;color:var(--muted);font-weight:300;line-height:1.65}
+.card-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sky);letter-spacing:.12em;margin-bottom:12px;display:block}
+
+/* ARCHITECTURE */
+.arch{border:1px dashed rgba(148,163,184,.25);border-radius:14px;padding:22px}
+.arch-head{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.arch-inner{border:1px solid rgba(6,182,212,.35);border-radius:12px;padding:22px;background:rgba(6,182,212,.04)}
+.arch-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;text-align:center;margin-bottom:4px}
+.arch-title small{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;letter-spacing:.12em;color:var(--delta);margin-top:4px;text-transform:uppercase}
+.arch-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:stretch;margin-top:20px}
+@media(max-width:820px){.arch-flow{grid-template-columns:1fr}.arch-arrow{transform:rotate(90deg);justify-self:center}}
+.arch-col{display:flex;flex-direction:column;gap:10px}
+.arch-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);text-align:center}
+.mod{border:1px dashed rgba(148,163,184,.4);border-radius:8px;padding:12px 14px;font-size:13px;text-align:center;background:var(--slate)}
+.mod small{display:block;font-size:11px;color:var(--muted);margin-top:3px;font-weight:300}
+.mod a{color:var(--white);text-decoration:none}
+.mod a:hover{color:var(--sky)}
+.found{border:2px solid var(--sky);border-radius:8px;background:rgba(56,189,248,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;flex:1}
+.found strong{font-family:'Space Grotesk',sans-serif;font-size:18px}
+.found span{font-size:12px;color:var(--muted);margin-top:6px}
+.arch-arrow{align-self:center;color:var(--muted);font-size:18px}
+.arch-legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.arch-legend i{display:inline-block;width:18px;height:11px;border-radius:3px;margin-right:8px;vertical-align:middle}
+
+/* SAME EVENT */
+.event-card{border:1px solid var(--border);border-radius:10px;padding:26px;background:var(--slate)}
+.event-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.event-what{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin:10px 0 14px}
+.meter{height:8px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:10px}
+.meter span{display:block;height:100%;border-radius:4px}
+.event-level{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em}
+.event-card p{font-size:13px;color:var(--muted);font-weight:300;line-height:1.6;margin-top:12px}
+.pull{font-family:'Space Grotesk',sans-serif;font-size:clamp(18px,2.2vw,22px);font-weight:500;line-height:1.5;max-width:720px;margin-top:40px;color:var(--white)}
+.pull em{color:var(--sky);font-style:normal}
+
+/* TOOLS */
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--white);border:1px solid var(--border);padding:9px 14px;border-radius:20px;background:var(--panel)}
+.chip b{color:var(--sky);font-weight:500}
+.note{font-size:13px;color:var(--muted);font-weight:300;line-height:1.7;margin-top:26px;max-width:620px}
+
+/* PROOF + CORE */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+@media(max-width:860px){.split{grid-template-columns:1fr;gap:28px}}
+.split p{font-size:14.5px;color:var(--muted);font-weight:300;line-height:1.8;margin-bottom:16px}
+.split p strong{color:var(--white);font-weight:500}
+.split img{width:100%;border-radius:10px;border:1px solid var(--border);display:block}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:8px 0 26px}
+.stat{border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;background:var(--slate)}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--sky)}
+.stat-label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:6px}
+.core-badge{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.3em;color:var(--warn);border:1px solid rgba(245,158,11,.35);padding:5px 12px;border-radius:20px;display:inline-block;margin-bottom:18px}
+
+/* WHY */
+#why{text-align:center;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(56,189,248,.07) 0%,transparent 70%),var(--slate)}
+.why-quote{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4.4vw,46px);font-weight:700;line-height:1.15;letter-spacing:-.02em;margin-bottom:22px}
+.why-quote em{font-style:normal;color:var(--sky)}
+.why-body{font-size:15px;color:var(--muted);font-weight:300;line-height:1.75;max-width:640px;margin:0 auto 32px}
+
+/* CTA */
+#cta-band{text-align:center;background:var(--panel);border-top:1px solid var(--border)}
+.cta-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3.8vw,40px);font-weight:700;margin:0 auto 14px;line-height:1.2}
+.cta-title em{color:var(--sky);font-style:normal}
+.cta-sub{font-size:15px;color:var(--muted);font-weight:300;max-width:560px;margin:0 auto 30px;line-height:1.7}
+.cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+/* PIT */
+#pit{border-top:1px solid var(--border)}
+.pit-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+@media(max-width:760px){.pit-grid{grid-template-columns:1fr;gap:40px}}
+.pit-hl{font-family:'Space Grotesk',sans-serif;font-size:clamp(20px,2.5vw,30px);font-weight:700;margin-bottom:14px;line-height:1.3}
+.pit-hl em{font-style:normal;color:var(--sky)}
+.pit-body{font-size:14px;font-weight:300;color:var(--muted);line-height:1.8;margin-bottom:24px}
+.pit-body strong{color:var(--white);font-weight:500}
+.partners-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.partners-row{display:flex;flex-wrap:wrap;gap:8px}
+.p-badge{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:8px 14px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;color:var(--muted)}
+#map{width:100%;height:420px;border-radius:10px;border:1px solid var(--border)}
+
+footer{padding:36px 0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);border-top:1px solid var(--border);line-height:1.9}
+footer a{color:var(--sky);text-decoration:none}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(5,9,17,.88);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-ov.open{display:flex}
+.modal-box{background:var(--slate);border:1px solid var(--border);border-radius:12px;max-width:520px;width:100%}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:20px 26px;border-bottom:1px solid var(--border)}
+.modal-head h3{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700}
+.modal-close{background:none;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px}
+.modal-body{padding:28px 26px}
+.demo-lead{font-size:14px;color:var(--white);font-weight:300;line-height:1.7;margin-bottom:24px}
+.demo-ctas{display:flex;gap:12px;flex-wrap:wrap}
+
+/* CATALOG */
+.catalog{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:900px){.catalog{grid-template-columns:1fr}}
+.cat-card{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:10px;padding:28px 24px;background:var(--slate);text-decoration:none;color:var(--white);transition:border-color .2s,transform .2s}
+.cat-card:hover{border-color:rgba(56,189,248,.4);transform:translateY(-2px)}
+.cat-feature{grid-column:1/-1;border-color:rgba(6,182,212,.35);background:rgba(6,182,212,.05)}
+.cat-tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
+.cat-card h3{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px}
+.cat-line{font-size:15px;color:var(--white);font-weight:400;line-height:1.5;margin-bottom:10px}
+.cat-card p{font-size:13.5px;color:var(--muted);font-weight:300;line-height:1.65}
+.cat-card .cat-line{color:var(--white)}
+.cat-go{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--sky);margin-top:auto;padding-top:18px}
+/* CHAIN */
+.chain{display:flex;flex-direction:column;gap:10px}
+.chain-step{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:16px;border:1px dashed rgba(148,163,184,.35);border-radius:10px;padding:16px 20px;background:var(--panel);text-decoration:none;color:var(--white);transition:border-color .2s}
+.chain-step:hover{border-color:var(--sky)}
+.found-step{border:2px solid var(--sky);background:rgba(56,189,248,.08)}
+.delta-step{border:1px solid rgba(6,182,212,.5);background:rgba(6,182,212,.06)}
+.chain-verb{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--sky)}
+.chain-mod{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700}
+.chain-mod small{display:block;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:300;color:var(--muted);margin-top:2px}
+@media(max-width:480px){.chain-step{grid-template-columns:1fr;gap:6px}}
+</style>
 </head>
 <body>
-<p><a href="/br/scanner-de-eventos.html">Events Scanner — português</a> · <a href="/eventsscanner.html" lang="en">English</a></p>
+<div class="es-band" role="region" aria-label="Events Scanner">
+    <span class="es-new">NEW</span>
+    <span class="es-text"><strong>Events Scanner</strong>: field events logged by voice, pinned straight onto the 3D map of your site.</span>
+    <span class="es-short"><strong>Events Scanner</strong>: events by voice</span>
+    <a href="https://eventsscanner.com/?utm_source=deltaomni_en&amp;utm_medium=band">Discover →</a>
+</div>
+
+<nav id="nav">
+    <a class="nav-logo" href="#hero"><span class="nav-logo-dot" style="background:var(--delta);box-shadow:0 0 10px var(--delta)"></span>DeltaOmni</a>
+    <ul class="nav-links">
+        <li><a href="#problem">The problem</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#difference">The difference</a></li>
+        <li><a href="#modules">Analysis modules</a></li>
+        <li><a href="#tools">Integrations</a></li>
+        <li><a href="#" onclick="openDemo();return false" class="nav-cta">Book a demo →</a></li>
+        <li class="nav-lang"><a href="/br/" hreflang="pt-BR" lang="pt-BR">PT</a></li>
+    </ul>
+    <button class="nav-ham" onclick="toggleNav()" aria-label="Menu">☰</button>
+</nav>
+<div class="nav-mob" id="nav-mob">
+    <a href="#problem" onclick="closeNav()">The problem</a>
+    <a href="#how" onclick="closeNav()">How it works</a>
+    <a href="#difference" onclick="closeNav()">The difference</a>
+    <a href="#modules" onclick="closeNav()">Analysis modules</a>
+    <a href="#tools" onclick="closeNav()">Integrations</a>
+    <a href="#" onclick="closeNav();openDemo();return false">Book a demo</a>
+    <a href="/br/" hreflang="pt-BR" lang="pt-BR">Português</a>
+</div>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+    <div class="inner">
+        <div class="hero-grid">
+            <div>
+                <span class="hero-badge" style="color:var(--delta);border-color:rgba(6,182,212,.4)">The Risk Nowcasting platform</span>
+                <h1 class="hero-title">See where risk is building up across your site — <em>before the storm breaks.</em></h1>
+                <p class="hero-sub">DeltaOmni reads every report, sensor and system, places each signal on MapOmni — your site in 3D — and weighs it by severity and context. What comes out is where risk is accumulating, what to fix first, and who owns it.</p>
+                <div class="hero-ctas">
+                    <button class="btn-primary" onclick="openDemo()">Book a 30-min demo →</button>
+                    <a class="btn-secondary" href="#how">See how it works</a>
+                </div>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+                <svg viewBox="0 0 520 360" role="img">
+                    <defs>
+                        <radialGradient id="storm" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#EF4444" stop-opacity=".55"/><stop offset="55%" stop-color="#F59E0B" stop-opacity=".25"/><stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/></radialGradient>
+                        <radialGradient id="haze" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#38BDF8" stop-opacity=".22"/><stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/></radialGradient>
+                    </defs>
+                    <g stroke="rgba(148,163,184,.35)" fill="rgba(30,41,59,.9)" stroke-width="1"><polygon points="260,40 500,160 260,280 20,160"/></g>
+                    <g stroke="rgba(148,163,184,.25)" fill="rgba(22,32,50,1)" stroke-width="1"><polygon points="150,120 230,160 170,190 90,150"/><polygon points="270,90 350,130 300,155 220,115"/><polygon points="330,170 420,215 360,245 270,200"/><polygon points="180,205 250,240 205,262 135,227"/></g>
+                    <g fill="rgba(56,189,248,.18)" stroke="rgba(56,189,248,.5)"><polygon points="150,120 230,160 230,130 150,90"/><polygon points="230,160 170,190 170,160 230,130"/><polygon points="330,170 420,215 420,175 330,130"/><polygon points="420,215 360,245 360,205 420,175"/></g>
+                    <ellipse cx="170" cy="150" rx="110" ry="60" fill="url(#haze)"/>
+                    <ellipse cx="365" cy="205" rx="95" ry="55" fill="url(#storm)"/>
+                    <g fill="#38BDF8"><circle cx="120" cy="150" r="3"/><circle cx="200" cy="175" r="3"/><circle cx="250" cy="120" r="3"/><circle cx="300" cy="125" r="3"/><circle cx="190" cy="230" r="3"/><circle cx="150" cy="200" r="3"/></g>
+                    <g fill="#F59E0B"><circle cx="345" cy="200" r="4"/><circle cx="380" cy="215" r="4"/></g>
+                    <g fill="#EF4444"><circle cx="365" cy="205" r="5"/><circle cx="395" cy="198" r="5"/><circle cx="350" cy="222" r="5"/></g>
+                    <g font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1">
+                        <text x="40" y="320" fill="#94A3B8">MANY LOW-SEVERITY REPORTS · CLEAR SKY</text>
+                        <line x1="365" y1="250" x2="420" y2="300" stroke="#EF4444" stroke-width="1"/>
+                        <text x="330" y="315" fill="#EF4444">STORM BUILDING · ACT HERE</text>
+                    </g>
+                </svg>
+                <div class="hv-caption">Risk = severity × context × accumulation over time</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ PROBLEM ══ -->
+<section id="problem" class="alt">
+    <div class="inner">
+        <div class="eyebrow">The problem</div>
+        <h2 class="section-title reveal">More data than ever. <em>Still no forecast.</em></h2>
+        <p class="section-sub reveal">Sites already capture inspections, incidents, near misses, camera detections and maintenance orders. What's missing is the reading of all of it — where, how severe, and what to fix first.</p>
+        <div class="grid3">
+            <div class="card reveal"><span class="card-num">01</span><h3>Reports pile up unread</h3><p>Every report gets filed. Patterns surface weeks later, in a monthly review — if at all.</p></div>
+            <div class="card reveal"><span class="card-num">02</span><h3>Alarms without context</h3><p>Detection without weighting floods field teams with alerts. The one that matters gets lost in the noise.</p></div>
+            <div class="card reveal"><span class="card-num">03</span><h3>Silos never meet</h3><p>Safety, quality and maintenance each live in their own system. When they converge on the same spot, nobody sees it.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section id="how">
+    <div class="inner">
+        <div class="eyebrow">How it works</div>
+        <h2 class="section-title reveal">Any signal in. <em>One reading of risk out.</em></h2>
+        <p class="section-sub reveal">DeltaOmni is built around MapOmni, its 3D foundation. Inputs and outputs are modules — each one also available on its own.</p>
+        <div class="arch reveal">
+            <div class="arch-head">Delivered as a <a href="https://mapomega.com/" style="color:var(--sky);text-decoration:none">MapOmega</a> solution</div>
+            <div class="arch-inner">
+                <div class="arch-title">DeltaOmni · the platform<small>Risk Nowcasting</small></div>
+                <div class="arch-flow">
+                    <div class="arch-col">
+                        <div class="arch-label">Inputs</div>
+                        <div class="mod">Your existing systems<small>inspections, incidents, CMMS, quality</small></div>
+                        <div class="mod">Sensors<small>wearables, cameras, telemetry</small></div>
+                        <div class="mod"><a href="https://eventsscanner.com/">Events Scanner →</a><small>reports by voice</small></div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-col">
+                        <div class="arch-label">Foundation</div>
+                        <div class="found"><strong><a href="https://mapomni.com/" style="color:var(--white);text-decoration:none">MapOmni →</a></strong><span>Your site in 3D · indoor and outdoor</span></div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-col">
+                        <div class="arch-label">Outputs</div>
+                        <div class="mod"><a href="#modules">Risk Nowcasting</a><small>risk cloud in 3D · analysis modules</small></div>
+                        <div class="mod"><a href="https://safetycross.com.br/">Safety Cross →</a><small>governance by area, shift and team</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="arch-legend"><span><i style="border:1px dashed rgba(148,163,184,.6)"></i>Module · also sold on its own</span><span><i style="border:2px solid #38BDF8;background:rgba(56,189,248,.1)"></i>Foundation · always included</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ SAME EVENT ══ -->
+<section id="difference" class="alt">
+    <div class="inner">
+        <div class="eyebrow">The difference</div>
+        <h2 class="section-title reveal">Same event. <em>Different risk.</em></h2>
+        <p class="section-sub reveal">Detection tells you something happened. Nowcasting tells you whether it matters — here. Each zone of your site carries the context your safety team defines: hazards, activity, people exposed.</p>
+        <div class="grid3">
+            <div class="event-card reveal"><div class="event-tag">Office floor</div><div class="event-what">Missing hard hat</div><div class="meter"><span style="width:8%;background:var(--ok)"></span></div><div class="event-level" style="color:var(--ok)">Noise · no action</div></div>
+            <div class="event-card reveal"><div class="event-tag">Scaffold, level 3</div><div class="event-what">Missing hard hat</div><div class="meter"><span style="width:88%;background:var(--crit)"></span></div><div class="event-level" style="color:var(--crit)">Storm cell · act now</div></div>
+            <div class="event-card reveal"><div class="event-tag">Loading bay, night shift</div><div class="event-what">No reports at all</div><div class="meter"><span style="width:55%;background:var(--warn)"></span></div><div class="event-level" style="color:var(--warn)">Silence · investigate</div><p>Where reports should exist and don't, that's a signal too.</p></div>
+        </div>
+        <p class="pull reveal">A hundred reports of paper on the floor weigh less than one report of a fire hazard. <em>Risk is severity in context, accumulating over time</em> — and it clears when the fix is made.</p>
+    </div>
+</section>
+
+<!-- ══ ANALYSIS MODULES ══ -->
+<section id="modules">
+    <div class="inner">
+        <div class="eyebrow">Outputs</div>
+        <h2 class="section-title reveal">Analysis modules, <em>named by what they deliver.</em></h2>
+        <p class="section-sub reveal">Every output reads the same events on the same map. Each site starts with the modules it needs and adds the rest by configuration.</p>
+        <div class="grid3">
+            <div class="card reveal"><span class="card-num">RISK CLOUD</span><h3>Where risk is building up</h3><p>Severity-weighted density of events in 3D, by dimension — safety, quality, maintenance, compliance — and where dimensions converge.</p></div>
+            <div class="card reveal"><span class="card-num">PRIORITIES</span><h3>What to fix first</h3><p>A geolocated priority list, ordered by criticality and the rules your team sets.</p></div>
+            <div class="card reveal"><span class="card-num">MTTR</span><h3>How long fixes take</h3><p>Time to resolve, by area, shift and team — and the age of the critical backlog.</p></div>
+            <div class="card reveal"><span class="card-num">REPORTING HEALTH</span><h3>Where silence hides risk</h3><p>Compares reporting across teams and shifts on the same ground, so silence gets investigated, not rewarded.</p></div>
+            <div class="card reveal"><span class="card-num">OPERATIONS</span><h3>OEE, cost per hour, cost per ton</h3><p>The same spatial reading applied to performance, for operations that run on mobile fleets and fixed lines.</p></div>
+            <div class="card reveal"><span class="card-num">GOVERNANCE</span><h3>Safety Cross</h3><p>Ownership and history by hierarchy — area, shift, team, site, organization — in real time, without opening the map. <a href="https://safetycross.com.br/" style="color:var(--sky);text-decoration:none">Visit →</a></p></div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ TOOLS ══ -->
+<section id="tools" class="alt">
+    <div class="inner">
+        <div class="eyebrow">Works with what you have</div>
+        <h2 class="section-title reveal">We don't replace your tools. <em>We read them.</em></h2>
+        <p class="section-sub reveal">Keep your checklists, cameras and EHS suite. DeltaOmni reads their signals and shows where risk is building up across all of them. Where capture is missing, Events Scanner and sensors fill the gap.</p>
+        <div class="chips reveal">
+            <span class="chip"><b>Safety</b> · inspections &amp; incidents</span>
+            <span class="chip"><b>Detection</b> · AI cameras</span>
+            <span class="chip"><b>Maintenance</b> · work orders</span>
+            <span class="chip"><b>Quality</b> · non-conformities</span>
+            <span class="chip"><b>Compliance</b> · audits</span>
+            <span class="chip"><b>Exposure</b> · wearables</span>
+        </div>
+        <p class="note reveal">We start with safety. Quality, maintenance and compliance are configured on the same map, because risk doesn't respect organizational silos. Integrations are scoped with your team during the pilot.</p>
+    </div>
+</section>
+
+<!-- ══ BUILT ON DELTAOMNI ══ -->
+<section id="built">
+    <div class="inner">
+        <div class="split">
+            <div class="reveal">
+                <div class="eyebrow">Built on DeltaOmni</div>
+                <span class="core-badge">MapOmega Core</span>
+                <h2 class="section-title">One platform, <em>configured per problem.</em></h2>
+                <p>Vertical solutions are DeltaOmni configurations. <strong>MapOmega Core</strong> is the first: Events Scanner and an exposure wearable as inputs, MapOmni as the 3D engine, a geolocated priority list and Safety Cross as outputs — built for heavy-equipment operators in mining.</p>
+                <p>The next verticals follow the same pattern, without rewriting the platform.</p>
+                <a class="btn-primary" href="https://mapomega.com/core.html">Explore MapOmega Core →</a>
+            </div>
+            <div class="reveal">
+                <div class="arch" style="padding:18px">
+                    <div class="arch-head">MapOmega Core · DeltaOmni configured</div>
+                    <div class="arch-col">
+                        <div class="mod">Events Scanner · exposure wearable<small>inputs</small></div>
+                        <div class="found" style="padding:14px"><strong>MapOmni</strong><span>3D engine</span></div>
+                        <div class="mod">Priority list · Safety Cross<small>outputs</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section id="cta-band">
+    <div class="inner">
+        <h2 class="cta-title reveal">Start with <em>one site.</em></h2>
+        <p class="cta-sub reveal">In 30 minutes, we'll show you a site in 3D, events landing on it by voice, the risk cloud building up, and the priority list it produces.</p>
+        <div class="cta-row">
+            <button class="btn-primary" onclick="openDemo()">Book a demo →</button>
+            <a href="mailto:comercial@mapomega.com" class="btn-secondary">comercial@mapomega.com</a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="inner">
+        DeltaOmni is a <a href="https://mapomega.com/">MapOmega</a> platform · <a href="https://mapomega.com/why.html">Why MapOmega</a><br>
+        Irving, TX · São José dos Campos, SP · <a href="mailto:comercial@mapomega.com">comercial@mapomega.com</a><br>
+        <span style="opacity:.5">© 2026 · All rights reserved</span>
+    </div>
+</footer>
+
+<div class="modal-ov" id="demo-modal" onclick="if(event.target===this)closeDemo()">
+    <div class="modal-box">
+        <div class="modal-head"><h3>Book a demo</h3><button class="modal-close" onclick="closeDemo()" aria-label="Close">✕</button></div>
+        <div class="modal-body">
+            <p class="demo-lead">In 30 minutes: a site in 3D, events landing on it by voice, the risk cloud building up, and the priority list it produces.</p>
+            <div class="demo-ctas">
+                <a class="btn-primary" href="https://calendly.com/deltaomni/30min?utm_source=deltaomni.com&amp;utm_medium=demo" target="_blank" rel="noopener">Pick a time →</a>
+                <a class="btn-secondary" href="https://wa.me/5521996485172?text=Hello%2C+I%27d+like+a+DeltaOmni+demo" target="_blank" rel="noopener">WhatsApp</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50);});
+function toggleNav(){document.getElementById('nav-mob').classList.toggle('open');}
+function closeNav(){document.getElementById('nav-mob').classList.remove('open');}
+function openDemo(){document.getElementById('demo-modal').classList.add('open');document.body.style.overflow='hidden';}
+function closeDemo(){document.getElementById('demo-modal').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDemo();});
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+</script>
 </body>
 </html>
