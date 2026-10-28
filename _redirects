@@ -10,6 +10,5 @@ https://www.eventsscanner.com/*        https://deltaomni.com/eventsscanner.html?
 https://scannerdeeventos.com.br/*      https://deltaomni.com/br/scanner-de-eventos.html?utm_source=scannerdeeventos.com.br  301!
 https://www.scannerdeeventos.com.br/*  https://deltaomni.com/br/scanner-de-eventos.html?utm_source=scannerdeeventos.com.br  301!
 
-# Raiz: home do DeltaOmni em português para navegadores pt; inglês vai ao Events Scanner até existir a home em inglês
+# Raiz: navegadores em português vão para a home em /br/; os demais recebem a home em inglês (index.html, sem regra)
 /      /br/  302!  Language=pt
-/      /eventsscanner.html          302!
